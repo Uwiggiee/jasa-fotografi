@@ -1,2 +1,6 @@
 # jasa-fotografi
-Projek *jasa* fotografi **menggunakan** [C++](https://en.wikipedia.org/wiki/Markdown).
+Sebuah proyek jasa pemesanan fotografi menggunakan bahasa C++
+dilakukan oleh:
+-Walid Nadirul Ahnaf
+-Syafiq Syadidul Azmi
+-Ludwig Alven Tama Lumban Tobing
