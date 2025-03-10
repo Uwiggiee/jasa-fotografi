@@ -1,3 +1,2 @@
 # jasa-fotografi
-
-Aku *sedang* belajar **menulis** dengan [markdown](https://en.wikipedia.org/wiki/Markdown).
+Projek *jasa* fotografi **menggunakan** [C++](https://en.wikipedia.org/wiki/Markdown).
