@@ -1,3 +1,12 @@
+# dilakukan oleh:
+
+-Walid Nadirul Ahnaf
+
+-Syafiq Syadidul Azmi
+
+-Ludwig Alven Tama Lumban Tobing
+
+
 # Sistem Pemesanan Jasa Fotografi
 
 Aplikasi manajemen pemesanan jasa fotografi berbasis command-line interface (CLI) yang dikembangkan dengan C++. Sistem ini menyediakan solusi efisien untuk mengelola jadwal pemesanan jasa fotografi dengan fitur-fitur komprehensif dan antarmuka yang intuitif.
@@ -103,9 +112,4 @@ Untuk compile menjalankan program:
 
 ```bash
 make run
-```
-
-## Pengembangan
-
-Proyek ini dikembangkan menggunakan bahasa pemrograman C++ dengan fokus pada pendekatan berorientasi objek dan penerapan struktur data yang efisien. Sistem ini dirancang untuk modularitas dan kemudahan pemeliharaan.
 ```
