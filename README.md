@@ -39,7 +39,7 @@ FotografiBookingSystem/
 ### Header Files (include/)
 
 #### Booking.h
-Mendefinisikan class `Booking` yang menyimpan informasi satu pemesanan, termasuk nomor telepon pelanggan, lokasi, tanggal, waktu mulai dan selesai, kode booking, dan status aktif. Class ini juga menyediakan method untuk menampilkan informasi booking dan getter/setter untuk setiap atribut.
+Mendefinisikan class `Booking` yang menyimpan informasi satu pemesanan, termasuk nama pelanggan, nomor telepon, tanggal, waktu mulai dan selesai, kode booking, dan status aktif. Class ini juga menyediakan method untuk menampilkan informasi booking dan getter/setter untuk setiap atribut.
 
 #### SistemPemesanan.h
 Mendefinisikan class `SistemPemesanan` yang mengelola semua operasi inti sistem, termasuk menambahkan booking baru, melihat jadwal, membatalkan booking, dan memulihkan booking yang dibatalkan. Class ini menggunakan berbagai struktur data untuk menyimpan dan mengelola pemesanan secara efisien.
@@ -87,12 +87,68 @@ Sistem menyediakan antarmuka untuk membuat pemesanan baru dengan validasi input,
 ### Pembatalan dan Undo Booking
 Pengguna atau admin dapat membatalkan pemesanan yang ada dengan memasukkan kode booking atau nomor telepon. Sistem juga menyediakan fitur "undo" untuk pembatalan yang tidak disengaja, selama slot waktu belum dipesan oleh pengguna lain.
 
-## Struktur Data yang Digunakan
+## Struktur Data dan Tipe Data yang Digunakan
 
-- **Vector**: Untuk menyimpan daftar semua pemesanan
-- **Unordered Map**: Untuk mengorganisir jadwal berdasarkan tanggal
-- **Unordered Set**: Untuk memastikan keunikan kode booking
-- **Stack**: Untuk mengelola riwayat pembatalan dan mendukung operasi undo
+### Library yang Digunakan
+- **<string>**: Untuk manipulasi string
+- **<vector>**: Untuk implementasi struktur data dinamis
+- **<stack>**: Untuk implementasi fitur undo
+- **<chrono>**: Untuk manipulasi waktu dan tanggal
+- **<unordered_map>**: Untuk pengorganisasian jadwal berdasarkan tanggal
+- **<iostream>**: Untuk input/output standar
+
+### Tipe Data Dasar
+- **string**: Digunakan untuk menyimpan nama pelanggan, nomor telepon, kode booking, dll
+- **time_t/chrono**: Untuk representasi internal tanggal dan waktu 
+- **bool**: Untuk status aktif/tidak aktif booking
+- **int**: Untuk perhitungan, indeks, dan counter booking
+
+### Struktur Data Kompleks
+- **vector<Booking>**: 
+  - Menyimpan daftar semua pemesanan dalam sistem
+  - Memungkinkan akses sekuensial ke seluruh booking
+  - Kompleksitas: O(1) untuk akses elemen, O(n) untuk pencarian linier
+
+- **unordered_map<string, vector<Booking>>**: 
+  - Mengorganisir booking berdasarkan tanggal
+  - Key: string tanggal (misal "2024-04-15") 
+  - Value: vector berisi booking pada tanggal tersebut
+  - Memungkinkan akses langsung O(1) ke semua booking pada tanggal tertentu
+  - Mengoptimalkan proses pengecekan konflik jadwal
+
+- **stack<Booking>**: 
+  - Mengelola riwayat pembatalan dengan prinsip LIFO (Last In First Out)
+  - Mendukung operasi undo pembatalan booking
+  - Kompleksitas O(1) untuk operasi push dan pop
+
+### Sistem Kode Booking
+Kode booking dibuat secara deterministik menggunakan kombinasi:
+- Inisial nama pelanggan
+- Tanggal booking (format pendek)
+- Counter sequential untuk tanggal tersebut
+
+Contoh: "BUD0415-1" untuk booking pertama atas nama Budi pada tanggal 15 April.
+Metode ini menjamin keunikan kode booking tanpa memerlukan pengecekan duplikasi.
+
+### Hubungan Antar Struktur Data
+- **Vector dan Map**: Vector menyimpan semua booking secara berurutan, sementara Map mengorganisirnya berdasarkan tanggal untuk pencarian efisien
+- **Map dan Sistem Booking**: Map memungkinkan pengecekan konflik jadwal O(1) saat booking baru dibuat
+- **Stack**: Menyimpan booking yang dibatalkan untuk mendukung fitur pembatalan yang dapat di-undo
+
+### Alur Data dalam Sistem
+1. Saat booking baru dibuat:
+   - Data booking disimpan dalam vector utama
+   - Referensi booking juga ditambahkan ke map berdasarkan tanggalnya
+   - Kode booking unik digenerate dan diberikan ke pelanggan
+
+2. Saat memeriksa ketersediaan jadwal:
+   - Sistem langsung mengakses tanggal yang diminta via map
+   - Memeriksa semua booking pada tanggal tersebut untuk konflik jadwal
+   
+3. Saat booking dibatalkan:
+   - Booking ditandai tidak aktif di vector utama
+   - Booking dihapus dari map jadwal
+   - Booking disimpan di stack riwayat pembatalan untuk fitur undo
 
 ## Kompilasi dan Menjalankan Program
 
