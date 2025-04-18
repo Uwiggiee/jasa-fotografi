@@ -1,0 +1,41 @@
+# Executable files
+*.exe
+booking_system
+
+# Object files
+*.o
+*.obj
+*.out
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+build/
+bin/
+
+# Visual Studio Code files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# Database files yang berubah saat runtime (opsional)
+# data/*.txt
+
+# Dependensi generated
+*.depend
+*.layout
+
+# Log files
+*.log
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
