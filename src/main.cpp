@@ -3,6 +3,7 @@
 #include <limits>  // Untuk std::numeric_limits
 #include "../include/User.h"
 #include "../include/Auth.h"
+#include "../include/Booking.h"
 // Include header files lainnya
 // #include "../include/Admin.h"
 // #include "../include/SistemPemesanan.h"
@@ -30,20 +31,17 @@ int main()
   return 0;
 }
 
-void cls()
-{
+void cls(){
   system("cls"); // Di Windows
 }
 
-void pause()
-{
+void pause(){
   std::cout << "\nTekan Enter untuk melanjutkan...";
   std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
   std::cin.get();
 }
 
-void displayMainMenu(Auth &auth)
-{
+void displayMainMenu(Auth &auth){
   cls();
   std::cout << "====== Selamat Datang di sistem pemesanan jasa fotografi ======" << std::endl;
   std::cout << "1. Login Sebagai Pelanggan" << std::endl;
