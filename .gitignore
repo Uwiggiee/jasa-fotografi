@@ -23,6 +23,9 @@ bin/
 !.vscode/settings.json
 !.vscode/tasks.json
 
+#temporary coderunner files
+temp*
+
 # Database files yang berubah saat runtime (opsional)
 # data/*.txt
 
