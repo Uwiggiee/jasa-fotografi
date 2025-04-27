@@ -126,7 +126,7 @@ bool Auth::loginAdmin(const std::string &phone, const std::string &password)
     if (phone == ADMIN_PHONE && password == ADMIN_PASSWORD)
     {
         // Login as admin (simplified version)
-        currentUser = new User("Administrator", phone);
+        currentUser = new Admin();
         isLoggedIn = true;
         std::cout << "Login admin berhasil!" << std::endl;
         return true;
@@ -139,7 +139,7 @@ User *Auth::getCurrentUser() const
     return currentUser;
 }
 
-bool Auth::isUserLoggedIn() const
+bool Auth::isUser() const
 {
     return isLoggedIn && currentUser != nullptr;
 }
@@ -147,7 +147,7 @@ bool Auth::isUserLoggedIn() const
 bool Auth::isAdmin() const
 {
     return isLoggedIn && currentUser != nullptr &&
-           currentUser->getPhoneNumber() == ADMIN_PHONE;
+           currentUser->isAdmin();
 }
 
 User *Auth::findUserByPhone(const std::string &phone)

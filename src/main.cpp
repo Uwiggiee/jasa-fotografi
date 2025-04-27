@@ -10,9 +10,10 @@
 
 // Deklarasi fungsi
 void handleCustomerLogin(Auth &auth);
-void handleAdminLogin();
+void handleAdminLogin(Auth &auth);
 void displayMainMenu(Auth &auth);
 void displayUserMenu(Auth &auth);
+void displayAdminMenu(Auth &auth);
 void cls();
 void pause();
 
@@ -59,7 +60,7 @@ void displayMainMenu(Auth &auth){
     handleCustomerLogin(auth);
     break;
   case 2:
-    handleAdminLogin();
+    handleAdminLogin(auth);
     break;
   case 3:
     std::cout << "Terima kasih telah menggunakan sistem kami!" << std::endl;
@@ -90,7 +91,7 @@ void handleCustomerLogin(Auth &auth)
     {
       cls();
       std::cout << "Akun baru berhasil dibuat!" << std::endl;
-      pause(); 
+      pause();
       displayUserMenu(auth);
     }
   }
@@ -108,11 +109,18 @@ void handleCustomerLogin(Auth &auth)
   }
 }
 
-void handleAdminLogin()
+void handleAdminLogin(Auth &auth)
 {
-  // Implementasi login admin
-  std::cout << "Handling admin login..." << std::endl;
-  // Contoh: auth.loginAsAdmin();
+  std::string phone;
+  std::string password;
+  std::cout << "Masukkan username: ";
+  std::cin >> phone;
+  std::cout << "Masukan password: ";
+  std::cin >> password;
+
+  auth.loginAdmin(phone, password);
+  pause();
+  displayAdminMenu(auth);
 }
 
 void displayUserMenu(Auth &auth)
@@ -133,7 +141,7 @@ void displayUserMenu(Auth &auth)
   case 1:
     cls();
     auth.getCurrentUser()->viewAvailableSchedule();
-    pause(); 
+    pause();
     break;
   case 2:
     cls();
@@ -145,9 +153,75 @@ void displayUserMenu(Auth &auth)
     break;
   default:
     std::cout << "Pilihan tidak valid!" << std::endl;
-    pause(); 
+    pause();
     break;
   }
+
+  displayMainMenu(auth); // Kembali ke menu utama setelah selesai
+}
+
+void displayAdminMenu(Auth &auth)
+{
+  if (!auth.isAdmin())
+  {
+    std::cout << "ANDA BUKAN ADMIN!" << std::endl;
+    pause();
+    displayMainMenu(auth);
+  }
+  else
+  {
+    Admin a;
+
+    cls();
+    std::cout << "=== MENU ADMIN ===" << std::endl;
+    std::cout << "0. Logout" << std::endl;
+    std::cout << "1. Lihat Jadwal Beserta Datanya" << std::endl;
+    std::cout << "2. Buat Booking Baru" << std::endl;
+    std::cout << "3. Edit Booking" << std::endl;
+    std::cout << "4. Remove Booking" << std::endl;
+    std::cout << "5. View Users" << std::endl;
+    std::cout << "Pilihan: ";
+
+    int choice;
+    std::cin >> choice;
+
+    // Process user selection
+    switch (choice)
+    {
+    case 0:
+      cls();
+      std::cout << "Logout berhasil!" << std::endl;
+      pause();
+      break;
+    case 1:
+      a.viewSchedule();
+      break;
+    case 2:
+      cls();
+      a.makeBooking();
+      pause();
+      break;
+    case 3:
+      a.editBooking();
+      break;
+    case 4:
+      a.removeBooking();
+      break;
+    case 5:
+      a.viewUsers();
+      break;
+    default:
+      std::cout << "Pilihan tidak valid!" << std::endl;
+      pause();
+      break;
+    }
+  }
+
+  // viewSchedule();
+  // makeBooking();
+  // editBooking();
+  // removeBooking();
+  // viewUsers();
 
   displayMainMenu(auth); // Kembali ke menu utama setelah selesai
 }
