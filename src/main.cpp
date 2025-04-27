@@ -117,7 +117,7 @@ void handleAdminLogin(Auth &auth)
   std::string password;
   std::cout << "Masukkan username: ";
   std::cin >> phone;
-  std::cout << "Masukan password: ";
+  std::cout << "Masukkan password: ";
   std::cin >> password;
 
   auth.loginAdmin(phone, password);
@@ -169,61 +169,61 @@ void displayAdminMenu(Auth &auth)
     std::cout << "ANDA BUKAN ADMIN!" << std::endl;
     pause();
     displayMainMenu(auth);
+    return; // Important to prevent further execution
   }
-  else
+
+  Admin *adminUser = dynamic_cast<Admin *>(auth.getCurrentUser());
+  if (!adminUser)
   {
-    Admin a;
-
-    cls();
-    std::cout << "=== MENU ADMIN ===" << std::endl;
-    std::cout << "0. Logout" << std::endl;
-    std::cout << "1. Lihat Jadwal Beserta Datanya" << std::endl;
-    std::cout << "2. Buat Booking Baru" << std::endl;
-    std::cout << "3. Edit Booking" << std::endl;
-    std::cout << "4. Remove Booking" << std::endl;
-    std::cout << "5. View Users" << std::endl;
-    std::cout << "Pilihan: ";
-
-    int choice;
-    std::cin >> choice;
-
-    // Process user selection
-    switch (choice)
-    {
-    case 0:
-      cls();
-      std::cout << "Logout berhasil!" << std::endl;
-      pause();
-      break;
-    case 1:
-      a.viewSchedule();
-      break;
-    case 2:
-      cls();
-      a.makeBooking();
-      pause();
-      break;
-    case 3:
-      a.editBooking();
-      break;
-    case 4:
-      a.removeBooking();
-      break;
-    case 5:
-      a.viewUsers();
-      break;
-    default:
-      std::cout << "Pilihan tidak valid!" << std::endl;
-      pause();
-      break;
-    }
+    std::cout << "Error: Admin cast failed!" << std::endl;
+    pause();
+    displayMainMenu(auth);
+    return;
   }
 
-  // viewSchedule();
-  // makeBooking();
-  // editBooking();
-  // removeBooking();
-  // viewUsers();
+  cls();
+  std::cout << "=== MENU ADMIN ===" << std::endl;
+  std::cout << "0. Logout" << std::endl;
+  std::cout << "1. Lihat Jadwal Beserta Datanya" << std::endl;
+  std::cout << "2. Buat Booking Baru" << std::endl;
+  std::cout << "3. Edit Booking" << std::endl;
+  std::cout << "4. Remove Booking" << std::endl;
+  std::cout << "5. View Users" << std::endl;
+  std::cout << "Pilihan: ";
+
+  int choice;
+  std::cin >> choice;
+
+  // Process user selection
+  switch (choice)
+  {
+  case 0:
+    cls();
+    std::cout << "Logout berhasil!" << std::endl;
+    pause();
+    break;
+  case 1:
+    adminUser->viewSchedule();
+    break;
+  case 2:
+    cls();
+    adminUser->makeBooking();
+    pause();
+    break;
+  case 3:
+    adminUser->editBooking();
+    break;
+  case 4:
+    adminUser->removeBooking();
+    break;
+  case 5:
+    adminUser->viewUsers();
+    break;
+  default:
+    std::cout << "Pilihan tidak valid!" << std::endl;
+    pause();
+    break;
+  }
 
   displayMainMenu(auth); // Kembali ke menu utama setelah selesai
 }
