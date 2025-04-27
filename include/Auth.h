@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "User.h"
+#include "Admin.h"
 
 class Auth {
 private:
@@ -34,7 +35,7 @@ public:
     
     // User management
     User* getCurrentUser() const;
-    bool isUserLoggedIn() const;
+    bool isUser() const;
     bool isAdmin() const;
     
     // Helper methods

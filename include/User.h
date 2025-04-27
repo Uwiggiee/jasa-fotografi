@@ -1,4 +1,3 @@
-// Di include/User.h
 #ifndef USER_H
 #define USER_H
 
@@ -10,16 +9,14 @@ private:
     std::string phoneNumber;
     
 public:
-    // Constructor
     User(const std::string& name, const std::string& phone);
-    
-    // Getters
+    virtual bool isAdmin() const {return false;}
+
     std::string getName() const;
     std::string getPhoneNumber() const;
     
-    // User operations
     void viewAvailableSchedule() const;
-    void makeBooking() const;
+    virtual void makeBooking() const;   
 
 };
 
