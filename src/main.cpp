@@ -175,7 +175,11 @@ void displayAdminMenu(Auth &auth)
   Admin *adminUser = dynamic_cast<Admin *>(auth.getCurrentUser());
   if (!adminUser)
   {
-    std::cout << "Error: Admin cast failed!" << std::endl;
+    std::cout << "Error: Admin cast failed! Current user is of type '"
+              << typeid(*auth.getCurrentUser()).name()
+              << "' with name '" << auth.getCurrentUser()->getName()
+              << "' and phone '" << auth.getCurrentUser()->getPhoneNumber()
+              << "'. Expected type 'Admin'." << std::endl;
     pause();
     displayMainMenu(auth);
     return;
