@@ -2,25 +2,31 @@
 #define ADMIN_H
 
 #include <string>
-#include "User.h"
+#include "User.h" // Admin adalah turunan dari User
 
-class Admin : public User {
-  private: 
-    std::string password;
-  public: 
+// Forward declarations
+class SistemPemesanan;
+class Auth;
 
-    Admin(const std::string& name = "Administrator", 
-          const std::string& phone = "admin", 
-          const std::string& pwd = "admin123" )
-          :User(name, phone), password(pwd) {}
-    bool isAdmin() const override {return true;}
-    std::string getAdminPassword() const;
-    
-    void makeBooking() const override;
-    void viewSchedule(); //bedanya dengan viewavailableschedule adalah dia bisa melihat data yang mendaftar
-    void editBooking();
-    void removeBooking();
-    void viewUsers();
+class Admin : public User // 'public User' artinya Admin mewarisi dari User
+{
+private:
+  std::string passwordAdmin;
+
+public:
+  Admin(const std::string &namaInput = "Administrator",
+        const std::string &teleponInput = "admin", // Username default admin
+        const std::string &passwordInput = "admin123");
+
+  bool isAdmin() const override; // Admin pasti true
+  std::string getPasswordAdmin() const;
+
+  // Fungsi Admin yang beda atau tambahan
+  void makeBooking(SistemPemesanan &sp) const override;
+  void cancelBooking(SistemPemesanan &sp) const override;
+  void viewSchedule(SistemPemesanan &sp) const;
+  void editBooking(SistemPemesanan &sp); // Fitur belum jadi
+  void viewUsers(Auth &sistemAuth) const;
 };
 
 #endif
