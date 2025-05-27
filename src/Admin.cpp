@@ -1,32 +1,91 @@
-#include <iostream>
 #include "../include/Admin.h"
+#include "../include/SistemPemesanan.h"
+#include "../include/Auth.h"
+#include <iostream>
+#include <string>
+#include <limits>
 
-std::string Admin::getAdminPassword() const {
-  return password;
+Admin::Admin(const std::string &namaInput, const std::string &teleponInput, const std::string &passwordInput)
+    : User(namaInput, teleponInput), passwordAdmin(passwordInput) {} // Panggil constructor User dulu
+
+bool Admin::isAdmin() const
+{
+  return true;
 }
 
-// Implementasi makeBooking yang override dari User
-void Admin::makeBooking() const {
-  std::cout << "=== ADMIN: Buat Booking Baru ===" << std::endl;
-  std::cout << "Fitur admin untuk membuat booking belum diimplementasikan." << std::endl;
+std::string Admin::getPasswordAdmin() const
+{
+  return passwordAdmin;
 }
 
-void Admin::viewSchedule() {
-  std::cout << "=== ADMIN: Lihat Semua Jadwal & Data Pemesan ===" << std::endl;
-  std::cout << "Fitur admin untuk melihat jadwal belum diimplementasikan." << std::endl;
+void Admin::makeBooking(SistemPemesanan &sp) const
+{
+  std::cout << "\n=== ADMIN: Buat Booking Untuk User ===" << std::endl;
+  std::string namaPemesan, teleponPemesan, tanggal, waktuMulai, waktuSelesai;
+
+  if (std::cin.peek() == '\n')
+  {
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  }
+
+  std::cout << "Nama pemesan: ";
+  std::getline(std::cin, namaPemesan);
+  std::cout << "Nomor telepon pemesan: ";
+  std::getline(std::cin, teleponPemesan);
+  std::cout << "Tanggal booking (dd/mm/yyyy): ";
+  std::getline(std::cin, tanggal);
+  std::cout << "Waktu mulai (hh:mm): ";
+  std::getline(std::cin, waktuMulai);
+  std::cout << "Waktu selesai (hh:mm): ";
+  std::getline(std::cin, waktuSelesai);
+
+  User userUntukBooking(namaPemesan, teleponPemesan); // Buat User sementara
+  std::string kodeDihasilkan;
+
+  if (sp.prosesBookingBaru(&userUntukBooking, tanggal, waktuMulai, waktuSelesai, kodeDihasilkan))
+  {
+    // Sukses
+  }
+  else
+  {
+    std::cout << "Admin gagal memproses booking." << std::endl;
+  }
+  std::cout << "====================================" << std::endl;
 }
 
-void Admin::editBooking() {
-  std::cout << "=== ADMIN: Edit Booking ===" << std::endl;
-  std::cout << "Fitur admin untuk edit booking belum diimplementasikan." << std::endl;
+void Admin::cancelBooking(SistemPemesanan &sp) const
+{
+  std::cout << "\n=== ADMIN: Batalkan Booking ===" << std::endl;
+  std::string kodeBooking;
+
+  if (std::cin.peek() == '\n')
+  {
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  }
+  std::cout << "Kode booking yang dibatalkan: ";
+  std::getline(std::cin, kodeBooking);
+
+  sp.prosesBatalBooking(kodeBooking);
+  std::cout << "===============================" << std::endl;
 }
 
-void Admin::removeBooking() {
-  std::cout << "=== ADMIN: Hapus Booking ===" << std::endl;
-  std::cout << "Fitur admin untuk hapus booking belum diimplementasikan." << std::endl;
+void Admin::viewSchedule(SistemPemesanan &sp) const
+{
+  std::cout << "\n=== ADMIN: Lihat Semua Jadwal ===" << std::endl;
+  sp.tampilkanSemuaBooking();
+  std::cout << "=================================" << std::endl;
 }
 
-void Admin::viewUsers() {
-  std::cout << "=== ADMIN: Lihat Semua User ===" << std::endl;
-  std::cout << "Fitur admin untuk melihat data user belum diimplementasikan." << std::endl;
+void Admin::editBooking([[maybe_unused]] SistemPemesanan &sp)
+{
+  std::cout << "\n=== ADMIN: Edit Booking ===" << std::endl;
+  std::cout << "Fitur ini belum tersedia." << std::endl;
+  std::cout << "===========================" << std::endl;
+}
+
+void Admin::viewUsers(Auth &sistemAuth) const
+{
+  std::cout << "\n=== ADMIN: Lihat User Terdaftar ===" << std::endl;
+  sistemAuth.tampilkanSemuaUserPelanggan();
+  std::cout << "===================================" << std::endl;
 }

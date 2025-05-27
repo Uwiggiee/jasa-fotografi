@@ -6,40 +6,36 @@
 #include "User.h"
 #include "Admin.h"
 
-class Auth {
+class Auth
+{
 private:
-    std::string userDbPath = "data/users.txt"; // Path to user database file
+    std::string fileDatabaseUser = "data/users.txt"; // File data user pelanggan
 
-    std::vector<User*> users;
-    User* currentUser;
-    bool isLoggedIn;
-    
-    // Admin credentials (hard-coded)
-    const std::string ADMIN_PHONE = "admin";
-    const std::string ADMIN_PASSWORD = "admin123";
-    
+    std::vector<User *> daftarSemuaUserPelanggan; // Daftar user pelanggan di memori
+    User *userSedangLogin;                        // Siapa yang lagi login
+    bool statusSedangLogin;
+
+    // Info Admin (disimpen di kode aja)
+    const std::string ADMIN_USERNAME_DEFAULT = "admin";
+    const std::string ADMIN_PASSWORD_DEFAULT = "admin123";
+
+    bool bacaUserDariFile();
+    bool simpanUserKeFile();
+
 public:
-    // Constructor & destructor
     Auth();
-    ~Auth();
+    ~Auth(); // Buat hapus User* dari memori
 
-    // Database Management
-    bool saveUsersToFile();
-    bool loadUsersFromFile();
-    
-    // User login/registration
-    bool loginOrRegister(const std::string& phone, const std::string& name = "");
-    
-    // Admin login
-    bool loginAdmin(const std::string& phone, const std::string& password);
-    
-    // User management
-    User* getCurrentUser() const;
-    bool isUser() const;
-    bool isAdmin() const;
-    
-    // Helper methods
-    User* findUserByPhone(const std::string& phone);
+    bool prosesLoginAtauRegistrasiUser(const std::string &telepon, const std::string &nama = "");
+    bool prosesLoginAdmin(const std::string &username, const std::string &password);
+    void prosesLogout();
+
+    User *getUserSedangLogin() const;
+    bool apaUserBiasaSedangLogin() const;
+    bool apaAdminSedangLogin() const;
+
+    void tampilkanSemuaUserPelanggan() const;
+    User *cariUserViaTelepon(const std::string &telepon); // Dipakai di main.cpp
 };
 
 #endif

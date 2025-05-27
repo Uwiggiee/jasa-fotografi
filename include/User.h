@@ -3,21 +3,27 @@
 
 #include <string>
 
-class User {
+class SistemPemesanan; // Info aja: nanti ada kelas SistemPemesanan
+
+class User
+{
 private:
     std::string name;
     std::string phoneNumber;
-    
+
 public:
-    User(const std::string& name, const std::string& phone);
-    virtual bool isAdmin() const {return false;}
+    User(const std::string &namaInput, const std::string &teleponInput);
+    virtual ~User() = default; // Penting buat pewarisan (Admin)
+
+    virtual bool isAdmin() const; // Cek ini Admin atau bukan
 
     std::string getName() const;
     std::string getPhoneNumber() const;
-    
-    void viewAvailableSchedule() const;
-    virtual void makeBooking() const;   
 
+    // Aksi-aksi yang bisa dilakukan User
+    virtual void viewAvailableSchedule(SistemPemesanan &sp) const;
+    virtual void makeBooking(SistemPemesanan &sp) const;
+    virtual void cancelBooking(SistemPemesanan &sp) const;
 };
 
 #endif

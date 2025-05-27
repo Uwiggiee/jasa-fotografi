@@ -1,56 +1,103 @@
 #include "../include/Booking.h"
 #include <iostream>
 #include <iomanip>
-#include <fstream>
-using namespace std;
+#include <sstream>
 
-time_t StrDate_toTime(string &date){
-    tm date_timestamp = {};
-    int day, mon, year;
+// Ubah "dd/mm/yyyy" jadi time_t
+time_t ubahStringTanggalKeTimeT(const std::string &strTanggal)
+{
+    struct tm detailWaktu = {}; // struct tm buat simpan detail tanggal & waktu
+    int hari, bulan, tahun;
     char slash1, slash2;
 
-    istringstream ss(date);
-    ss >> day >> slash1 >> mon >> slash2 >> year;
+    std::istringstream parser(strTanggal); // Alat buat "baca" string
+    if (!(parser >> hari >> slash1 >> bulan >> slash2 >> tahun && slash1 == '/' && slash2 == '/'))
+    {
+        return static_cast<time_t>(-1); // Format salah, balikin error
+    }
 
-    date_timestamp.tm_mday = day;
-    date_timestamp.tm_mon = mon-1;
-    date_timestamp.tm_year = year-1900;
+    detailWaktu.tm_mday = hari;
+    detailWaktu.tm_mon = bulan - 1;     // Bulan di tm itu 0-11
+    detailWaktu.tm_year = tahun - 1900; // Tahun di tm dihitung dari 1900
 
-    return mktime(&date_timestamp);
+    return mktime(&detailWaktu); // Konversi struct tm ke time_t
 }
 
-time_t StrClock_toTime(time_t date, string &clock){
-    tm clock_timestamp = {};
-    int hour, min;
-    char slash;
+// Ubah "hh:mm" dan tanggal (time_t) jadi time_t lengkap
+time_t ubahStringJamKeTimeT(time_t tanggalDasar, const std::string &strJam)
+{
+    if (tanggalDasar == static_cast<time_t>(-1))
+        return static_cast<time_t>(-1); // Kalau tanggalnya udah error, ikut error
 
-    istringstream ss(clock);
-    ss >> hour >> slash >> min;
-    
-    tm* dt = localtime(&date);
-    clock_timestamp.tm_mday = dt->tm_mday;
-    clock_timestamp.tm_mon = dt->tm_mon;
-    clock_timestamp.tm_year = dt->tm_year;
-    clock_timestamp.tm_hour = hour;
-    clock_timestamp.tm_min = min;
+    struct tm detailWaktu = {};
+    int jam, menit;
+    char colon;
 
-    time_t ct = mktime(&clock_timestamp);
-    return ( ct );
+    std::istringstream parser(strJam);
+    if (!(parser >> jam >> colon >> menit && colon == ':'))
+    {
+        return static_cast<time_t>(-1); // Format jam salah
+    }
+
+    struct tm *infoTanggal = localtime(&tanggalDasar); // Ambil detail dari tanggalDasar
+    if (!infoTanggal)
+        return static_cast<time_t>(-1); // Gagal ambil info tanggal
+
+    detailWaktu = *infoTanggal; // Salin info tanggal, bulan, tahun
+    detailWaktu.tm_hour = jam;
+    detailWaktu.tm_min = menit;
+    detailWaktu.tm_sec = 0; // Detik set ke 0
+
+    return mktime(&detailWaktu);
 }
 
-Booking::Booking(string telp, string date, string start, string finish){
-    nomor_telp_user = telp;
-
-    time_t date_time = StrDate_toTime(date);
-    mulai = StrClock_toTime(date_time, start);
-    selesai = StrClock_toTime(date_time, finish);
+// Constructor untuk booking baru
+Booking::Booking(const std::string &namaPemesanInput, const std::string &teleponPemesanInput,
+                 const std::string &strTanggal, const std::string &strMulai, const std::string &strSelesai)
+    : pemesanNama(namaPemesanInput), pemesanNomorTelepon(teleponPemesanInput), statusAktif(true)
+{
+    time_t tanggalKonversi = ubahStringTanggalKeTimeT(strTanggal);
+    waktuMulai = ubahStringJamKeTimeT(tanggalKonversi, strMulai);
+    waktuSelesai = ubahStringJamKeTimeT(tanggalKonversi, strSelesai);
+    // Kode booking akan di-set oleh SistemPemesanan
 }
 
-void Booking::print_booking(){
-    tm* dt = localtime(&mulai);
-    cout << put_time(dt, "%d %b %Y | %H:%M - ");
-    dt = localtime(&selesai);
-    cout << put_time(dt, "%H:%M\n");
+// Constructor untuk loading dari file
+Booking::Booking(const std::string &kodeBookingInput, const std::string &namaPemesanInput, const std::string &teleponPemesanInput,
+                 const std::string &strTanggal, const std::string &strMulai, const std::string &strSelesai, bool aktifStatus)
+    : pemesanNama(namaPemesanInput), 
+      pemesanNomorTelepon(teleponPemesanInput),
+      kodeBooking(kodeBookingInput),
+      statusAktif(aktifStatus)
+{
+    time_t tanggalKonversi = ubahStringTanggalKeTimeT(strTanggal);
+    waktuMulai = ubahStringJamKeTimeT(tanggalKonversi, strMulai);   
+    waktuSelesai = ubahStringJamKeTimeT(tanggalKonversi, strSelesai);
+}
+
+void Booking::tampilkanDetailBooking() const
+{
+    std::cout << "Pemesan: " << pemesanNama << " (" << pemesanNomorTelepon << ")" << std::endl;
+
+    if (waktuMulai == static_cast<time_t>(-1) || waktuSelesai == static_cast<time_t>(-1))
+    {
+        std::cout << "Waktu  : Data waktu tidak valid." << std::endl;
+    }
+    else
+    {
+        struct tm *mulai_tm = localtime(&waktuMulai);
+        struct tm *selesai_tm = localtime(&waktuSelesai);
+        if (mulai_tm && selesai_tm)
+        {
+            std::cout << "Waktu  : " << std::put_time(mulai_tm, "%d %b %Y | %H:%M")
+                      << " - " << std::put_time(selesai_tm, "%H:%M") << std::endl;
+        }
+        else
+        {
+            std::cout << "Waktu  : Gagal format waktu." << std::endl;
+        }
+    }
+    std::cout << "Kode   : " << kodeBooking << (statusAktif ? " (Aktif)" : " (Dibatalkan)") << std::endl;
 }
 
 // int main(){
@@ -64,10 +111,10 @@ void Booking::print_booking(){
 
 //     cout << "masukkan tanggal mulai (dd/mm/yyyy) : ";
 //     cin >> tanggal;
-    
+
 //     cout << "masukkan waktu mulai (hh:mm) : ";
 //     cin >> start;
-    
+
 //     cout << "masukkan waktu selesai (hh:mm) : ";
 //     cin >> finish;
 

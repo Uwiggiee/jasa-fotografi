@@ -1,163 +1,182 @@
 #include "../include/Auth.h"
 #include <iostream>
-#include <fstream>
-#include <sstream>
+#include <fstream> // Untuk baca/tulis file
 
-Auth::Auth()
+Auth::Auth() : userSedangLogin(nullptr), statusSedangLogin(false)
 {
-    currentUser = nullptr;
-    isLoggedIn = false;
-
-    // Load users dari database
-    if (!loadUsersFromFile())
-    {
-       std::cerr << "Error: Failed to load user database." << std::endl;
-    }
+    bacaUserDariFile(); // Coba baca data user pas program mulai
 }
 
 Auth::~Auth()
 {
-    // Bersihkan memory
-    for (auto &user : users)
+    // Hapus semua User pelanggan yang dibuat pakai 'new'
+    for (User *userPtr : daftarSemuaUserPelanggan)
     {
-        delete user;
+        delete userPtr;
     }
-    users.clear();
+    daftarSemuaUserPelanggan.clear();
+
+    // Hapus Admin default jika ada (yang dibuat pakai 'new' pas login admin)
+    if (userSedangLogin && userSedangLogin->isAdmin() && userSedangLogin->getPhoneNumber() == ADMIN_USERNAME_DEFAULT)
+    {
+        delete userSedangLogin;
+    }
+    userSedangLogin = nullptr;
 }
 
-bool Auth::loadUsersFromFile()
+bool Auth::bacaUserDariFile()
 {
-    std::ifstream file(userDbPath);
-    if (!file.is_open())
+    std::ifstream fileIn(fileDatabaseUser);
+    if (!fileIn.is_open())
     {
-        std::cerr << "Error: Cannot open user database file." << std::endl;
+        std::cerr << "Warning Auth: File " << fileDatabaseUser << " gak ada atau gak bisa dibuka. Anggap kosong." << std::endl;
+        std::ofstream fileOut(fileDatabaseUser); // Coba buat file kosongnya
+        fileOut.close();
         return false;
     }
 
-    for (auto &user : users)
-    {
-        delete user; // Hapus user yang ada di memory
+    for (User *userPtr : daftarSemuaUserPelanggan)
+    { // Hapus dulu data lama di memori
+        delete userPtr;
     }
-    users.clear(); // Kosongkan vector users
+    daftarSemuaUserPelanggan.clear();
 
-    // Format file: name,phone
-    std::string line;
-    while (std::getline(file, line))
+    std::string baris;
+    while (std::getline(fileIn, baris))
     {
-        if (line.empty() || line[0] == '#')
-            continue; // Skip empty lines and comments
+        if (baris.empty() || baris[0] == '/' || baris[0] == '#')
+            continue; // Abaikan baris kosong/komentar
 
-        // Parse CSV (name,phone)
-        size_t commaPos = line.find(',');
-        if (commaPos != std::string::npos)
+        size_t posKoma = baris.find(',');
+        if (posKoma != std::string::npos)
         {
-            std::string name = line.substr(0, commaPos);
-            std::string phone = line.substr(commaPos + 1);
-
-            // Buat user baru
-            User *user = new User(name, phone);
-            users.push_back(user);
+            std::string nama = baris.substr(0, posKoma);
+            std::string telepon = baris.substr(posKoma + 1);
+            if (!nama.empty() && !telepon.empty())
+            {
+                daftarSemuaUserPelanggan.push_back(new User(nama, telepon));
+            }
         }
     }
-
-    file.close();
-    std::cout << "User database loaded successfully." << std::endl;
+    fileIn.close();
     return true;
 }
 
-bool Auth::saveUsersToFile()
+bool Auth::simpanUserKeFile()
 {
-    std::ofstream file(userDbPath);
-    if (!file.is_open())
+    std::ofstream fileOut(fileDatabaseUser);
+    if (!fileOut.is_open())
     {
-        std::cerr << "Error: Cannot open user database file for writing." << std::endl;
+        std::cerr << "Error Auth: Gak bisa nulis ke file " << fileDatabaseUser << std::endl;
         return false;
     }
-
-    file << "// User database - Format: name,phone" << std::endl;
-    for (auto &user : users)
+    fileOut << "// Data User Pelanggan (nama,telepon)" << std::endl;
+    for (const User *userPtr : daftarSemuaUserPelanggan)
     {
-        if (user->getPhoneNumber() != ADMIN_PHONE)
-        { 
-            file << user->getName() << "," << user->getPhoneNumber() << std::endl;
+        if (userPtr && !userPtr->isAdmin()) // Hanya simpan user biasa
+        {
+            fileOut << userPtr->getName() << "," << userPtr->getPhoneNumber() << std::endl;
         }
     }
-
-    file.close();
-    std::cout << "User database saved successfully." << std::endl;
+    fileOut.close();
     return true;
 }
 
-bool Auth::loginOrRegister(const std::string &phone, const std::string &name)
+User *Auth::cariUserViaTelepon(const std::string &telepon)
 {
-    // Coba cari user berdasarkan nomor telepon
-    User *user = findUserByPhone(phone);
-
-    if (user != nullptr)
+    for (User *userPtr : daftarSemuaUserPelanggan)
     {
-        // User ditemukan, langsung login
-        currentUser = user;
-        isLoggedIn = true;
-        std::cout << "Selamat datang kembali, " << user->getName() << "!" << std::endl;
+        if (userPtr->getPhoneNumber() == telepon)
+            return userPtr;
+    }
+    return nullptr; // Gak ketemu
+}
+
+bool Auth::prosesLoginAtauRegistrasiUser(const std::string &telepon, const std::string &nama)
+{
+    User *userAda = cariUserViaTelepon(telepon);
+    if (userAda) // User udah ada -> Login
+    {
+        userSedangLogin = userAda;
+        statusSedangLogin = true;
+        std::cout << "Halo lagi, " << userSedangLogin->getName() << "!" << std::endl;
         return true;
     }
-    else if (!name.empty())
+    else if (!nama.empty()) // User gak ada, nama diisi -> Registrasi
     {
-        // User tidak ditemukan tapi nama disediakan, buat user baru
-        User *newUser = new User(name, phone);
-        users.push_back(newUser);
-        currentUser = newUser;
-        isLoggedIn = true;
-
-        // Simpan perubahan database
-        saveUsersToFile();
-
-        std::cout << "Akun baru dibuat: " << name << " (" << phone << ")" << std::endl;
-        return true;
-    }
-
-    // User tidak ditemukan dan nama tidak disediakan
-    std::cout << "Nomor telepon " << phone << " belum terdaftar." << std::endl;
-    return false;
-}
-
-bool Auth::loginAdmin(const std::string &phone, const std::string &password)
-{
-    if (phone == ADMIN_PHONE && password == ADMIN_PASSWORD)
-    {
-        // Login as admin (simplified version)
-        currentUser = new Admin();
-        isLoggedIn = true;
-        std::cout << "Login admin berhasil!" << std::endl;
-        return true;
-    }
-    return false;
-}
-
-User *Auth::getCurrentUser() const
-{
-    return currentUser;
-}
-
-bool Auth::isUser() const
-{
-    return isLoggedIn && currentUser != nullptr;
-}
-
-bool Auth::isAdmin() const
-{
-    return isLoggedIn && currentUser != nullptr &&
-           currentUser->isAdmin();
-}
-
-User *Auth::findUserByPhone(const std::string &phone)
-{
-    for (auto &user : users)
-    {
-        if (user->getPhoneNumber() == phone)
+        if (telepon.empty())
         {
-            return user;
+            std::cout << "Registrasi gagal: Telepon gak boleh kosong." << std::endl;
+            return false;
+        }
+        User *userBaru = new User(nama, telepon);
+        daftarSemuaUserPelanggan.push_back(userBaru);
+        userSedangLogin = userBaru;
+        statusSedangLogin = true;
+        simpanUserKeFile(); // Langsung simpan user baru
+        std::cout << "Akun untuk " << nama << " berhasil dibuat & langsung login." << std::endl;
+        return true;
+    }
+    std::cout << "Login gagal: Nomor " << telepon << " belum daftar. Registrasi dulu ya." << std::endl;
+    return false;
+}
+
+bool Auth::prosesLoginAdmin(const std::string &username, const std::string &password)
+{
+    if (username == ADMIN_USERNAME_DEFAULT && password == ADMIN_PASSWORD_DEFAULT)
+    {
+        if (userSedangLogin)
+            prosesLogout(); // Logout user/admin lama dulu
+
+        userSedangLogin = new Admin(); // Buat objek Admin baru
+        statusSedangLogin = true;
+        std::cout << "Login Admin (" << userSedangLogin->getName() << ") sukses!" << std::endl;
+        return true;
+    }
+    return false;
+}
+
+void Auth::prosesLogout()
+{
+    if (statusSedangLogin && userSedangLogin)
+    {
+        std::cout << "Logout sukses: " << userSedangLogin->getName() << std::endl;
+        if (userSedangLogin->isAdmin() && userSedangLogin->getPhoneNumber() == ADMIN_USERNAME_DEFAULT)
+        {
+            delete userSedangLogin; // Hapus Admin default dari memori
         }
     }
-    return nullptr;
+    userSedangLogin = nullptr;
+    statusSedangLogin = false;
+}
+
+User *Auth::getUserSedangLogin() const
+{
+    return userSedangLogin;
+}
+bool Auth::apaUserBiasaSedangLogin() const
+{
+    return statusSedangLogin && userSedangLogin && !userSedangLogin->isAdmin();
+}
+bool Auth::apaAdminSedangLogin() const
+{
+    return statusSedangLogin && userSedangLogin && userSedangLogin->isAdmin();
+}
+
+void Auth::tampilkanSemuaUserPelanggan() const
+{
+    std::cout << "\n--- Daftar User Pelanggan ---" << std::endl;
+    int no = 1;
+    bool ada = false;
+    for (const auto &userPtr : daftarSemuaUserPelanggan)
+    {
+        if (userPtr && !userPtr->isAdmin())
+        {
+            std::cout << no++ << ". " << userPtr->getName() << " (" << userPtr->getPhoneNumber() << ")" << std::endl;
+            ada = true;
+        }
+    }
+    if (!ada)
+        std::cout << "Belum ada user pelanggan." << std::endl;
+    std::cout << "-----------------------------" << std::endl;
 }

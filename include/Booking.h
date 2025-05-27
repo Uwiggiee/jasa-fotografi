@@ -4,18 +4,43 @@
 #include <string>
 #include <ctime>
 
-time_t StrDate_toTime(std::string &date);
-time_t StrClock_toTime(time_t date, std::string &clock);
+// Fungsi bantu konversi string ke waktu (tetap)
+time_t ubahStringTanggalKeTimeT(const std::string &strTanggal);
+time_t ubahStringJamKeTimeT(time_t tanggalDasar, const std::string &strJam);
 
-class Booking{
-    private:
-        std::string nomor_telp_user;
-        time_t mulai;
-        time_t selesai;
-    
-    public:
-        Booking(std::string telp, std::string date, std::string start, std::string finish);
-        void print_booking();
+class Booking
+{
+private:
+    // const User *userPemesan; // Ganti ini
+    std::string pemesanNama;         // Simpan nama pemesan
+    std::string pemesanNomorTelepon; // Simpan nomor telepon pemesan
 
+    time_t waktuMulai;
+    time_t waktuSelesai;
+    std::string kodeBooking;
+    bool statusAktif;
+
+public:
+    // Constructor diubah untuk terima nama dan telepon pemesan
+    Booking(const std::string &namaPemesanInput, const std::string &teleponPemesanInput,
+            const std::string &strTanggal, const std::string &strMulai, const std::string &strSelesai);
+
+    // Constructor tambahan untuk loading dari file (termasuk kode dan status)
+    Booking(const std::string &kodeBookingInput, const std::string &namaPemesanInput, const std::string &teleponPemesanInput,
+            const std::string &strTanggal, const std::string &strMulai, const std::string &strSelesai, bool aktifStatus);
+
+    void tampilkanDetailBooking() const;
+
+    time_t getWaktuMulai() const { return waktuMulai; }
+    time_t getWaktuSelesai() const { return waktuSelesai; }
+    std::string getKodeBooking() const { return kodeBooking; }
+    bool isAktif() const { return statusAktif; }
+    // const User *getUserPemesan() const { return userPemesan; } // Ini kita hapus/sesuaikan
+    std::string getPemesanNama() const { return pemesanNama; }
+    std::string getPemesanNomorTelepon() const { return pemesanNomorTelepon; }
+
+    void setKodeBooking(const std::string &kode) { kodeBooking = kode; }
+    void setStatusAktif(bool status) { statusAktif = status; }
 };
+
 #endif
