@@ -44,4 +44,4 @@ temp*
 *.sln.docstates
 
 #database
-data/*.txt
+*.txt
