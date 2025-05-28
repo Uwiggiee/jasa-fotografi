@@ -1,2 +1,0 @@
-// Data Booking (kode,teleponPemesan,namaPemesan,tgl_dd/mm/yyyy,mulai_hh:mm,selesai_hh:mm,statusAktif_1atau0)
-B-001,123,ganteng,12/12/2025,14:35,14:35,0
