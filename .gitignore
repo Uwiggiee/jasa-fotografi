@@ -42,3 +42,6 @@ temp*
 *.user
 *.userosscache
 *.sln.docstates
+
+#database
+data/*.txt
