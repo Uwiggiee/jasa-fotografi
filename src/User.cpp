@@ -36,11 +36,7 @@ void User::makeBooking(SistemPemesanan &sp) const
     std::cout << "\n=== Buat Booking Baru ===" << std::endl;
     std::string tanggal, waktuMulai, waktuSelesai;
 
-    // Bersihin sisa 'Enter' dari input sebelumnya, biar getline gak error
-    if (std::cin.peek() == '\n')
-    {
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
+
 
     std::cout << "Tanggal booking (dd/mm/yyyy): ";
     std::getline(std::cin, tanggal);
@@ -67,11 +63,6 @@ void User::cancelBooking(SistemPemesanan &sp) const
 {
     std::cout << "\n=== Batalkan Booking ===" << std::endl;
     std::string kodeBooking;
-
-    if (std::cin.peek() == '\n')
-    {
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
 
     std::cout << "Kode booking yang mau dibatalkan: ";
     std::getline(std::cin, kodeBooking);
