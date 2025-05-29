@@ -11,7 +11,6 @@ time_t ubahStringJamKeTimeT(time_t tanggalDasar, const std::string &strJam);
 class Booking
 {
 private:
-    // const User *userPemesan; // Ganti ini
     std::string pemesanNama;         // Simpan nama pemesan
     std::string pemesanNomorTelepon; // Simpan nomor telepon pemesan
 
@@ -21,6 +20,10 @@ private:
     bool statusAktif;
 
 public:
+    // Tambah default constructor
+    Booking() : pemesanNama(""), pemesanNomorTelepon(""), 
+                waktuMulai(0), waktuSelesai(0), kodeBooking(""), statusAktif(false) {}
+
     // Constructor diubah untuk terima nama dan telepon pemesan
     Booking(const std::string &namaPemesanInput, const std::string &teleponPemesanInput,
             const std::string &strTanggal, const std::string &strMulai, const std::string &strSelesai);
@@ -35,7 +38,6 @@ public:
     time_t getWaktuSelesai() const { return waktuSelesai; }
     std::string getKodeBooking() const { return kodeBooking; }
     bool isAktif() const { return statusAktif; }
-    // const User *getUserPemesan() const { return userPemesan; } // Ini kita hapus/sesuaikan
     std::string getPemesanNama() const { return pemesanNama; }
     std::string getPemesanNomorTelepon() const { return pemesanNomorTelepon; }
 

@@ -148,7 +148,14 @@ void menuUserBiasa(Auth &auth, SistemPemesanan &sp)
   std::cout << "1. Lihat Jadwal" << std::endl;
   std::cout << "2. Buat Booking" << std::endl;
   std::cout << "3. Batalkan Booking" << std::endl;
-  std::cout << "4. Logout" << std::endl;
+  std::cout << "4. Undo Pembatalan";
+  if (!sp.canUndo())
+  {
+    std::cout << " (Tidak tersedia)";
+  }
+  std::cout << std::endl;
+  std::cout << "5. Logout" << std::endl;
+
   std::cout << "\nPilih: ";
 
   int pilihan;
@@ -177,6 +184,11 @@ void menuUserBiasa(Auth &auth, SistemPemesanan &sp)
     userAktif->cancelBooking(sp);
     break;
   case 4:
+    bersihkanLayar();
+    std::cout << "=== Undo Pembatalan Booking ===" << std::endl;
+    sp.undoCancellation();
+    break;
+  case 5:
     auth.prosesLogout();
     break;
   default:
@@ -197,8 +209,14 @@ void menuAdminKhusus(Auth &auth, SistemPemesanan &sp)
   std::cout << "1. Lihat Semua Jadwal" << std::endl;
   std::cout << "2. Buat Booking (untuk User)" << std::endl;
   std::cout << "3. Batalkan Booking (via Kode)" << std::endl;
-  std::cout << "4. Lihat User Pelanggan" << std::endl;
-  std::cout << "5. Logout" << std::endl;
+  std::cout << "4. Undo Pembatalan";
+  if (!sp.canUndo())
+  {
+    std::cout << " (Tidak tersedia)";
+  }
+  std::cout << std::endl;
+  std::cout << "5. Lihat User Pelanggan" << std::endl;
+  std::cout << "6. Logout" << std::endl;
   std::cout << "\nPilih: ";
 
   int pilihan;
@@ -228,9 +246,14 @@ void menuAdminKhusus(Auth &auth, SistemPemesanan &sp)
     break;
   case 4:
     bersihkanLayar();
-    adminAktif->viewUsers(auth);
+    std::cout << "=== ADMIN: Undo Pembatalan Booking ===" << std::endl;
+    sp.undoCancellation();
     break;
   case 5:
+    bersihkanLayar();
+    adminAktif->viewUsers(auth);
+    break;
+  case 6:
     auth.prosesLogout();
     break;
   default:

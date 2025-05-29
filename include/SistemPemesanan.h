@@ -5,6 +5,7 @@
 #include <string>
 #include "Booking.h"
 #include "User.h" 
+#include "CustomStack.h"
 
 class SistemPemesanan
 {
@@ -13,11 +14,12 @@ private:
     std::vector<Booking> semuaDataBooking;
     int counterBooking;
 
+    CustomStack<Booking> undoStack;
+
     std::string hasilkanKodeBooking();
     bool cekJadwalBentrok(const Booking &bookingBaru) const;
-
-    bool bacaBookingDariFile();       // Fungsi baru
-    bool simpanBookingKeFile() const; // Fungsi baru, const karena tidak mengubah member secara logis (hanya I/O)
+    bool bacaBookingDariFile();       
+    bool simpanBookingKeFile() const; 
 
 public:
     SistemPemesanan();
@@ -26,6 +28,8 @@ public:
     bool prosesBookingBaru(const User *user, const std::string &strTanggal, const std::string &strMulai, const std::string &strSelesai, std::string &outKodeBooking);
     void tampilkanSemuaBooking() const;
     bool prosesBatalBooking(const std::string &kodeBooking);
+    bool undoCancellation();
+    bool canUndo() const;
 };
 
 #endif
