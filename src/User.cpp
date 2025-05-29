@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <limits> // Buat std::cin.ignore
+#include <algorithm> // Untuk std::transform
+#include <cctype> // Untuk std::toupper
 
 User::User(const std::string &namaInput, const std::string &teleponInput)
     : name(namaInput), phoneNumber(teleponInput) {}
@@ -66,6 +68,9 @@ void User::cancelBooking(SistemPemesanan &sp) const
 
     std::cout << "Kode booking yang mau dibatalkan: ";
     std::getline(std::cin, kodeBooking);
+
+    std::transform(kodeBooking.begin(), kodeBooking.end(), kodeBooking.begin(), 
+            [](unsigned char c) { return std::toupper(c); });
 
     sp.prosesBatalBooking(kodeBooking); // Pesan sukses/gagal diurus SistemPemesanan
     std::cout << "========================" << std::endl;
