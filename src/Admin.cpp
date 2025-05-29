@@ -23,11 +23,6 @@ void Admin::makeBooking(SistemPemesanan &sp) const
   std::cout << "\n=== ADMIN: Buat Booking Untuk User ===" << std::endl;
   std::string namaPemesan, teleponPemesan, tanggal, waktuMulai, waktuSelesai;
 
-  if (std::cin.peek() == '\n')
-  {
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-  }
-
   std::cout << "Nama pemesan: ";
   std::getline(std::cin, namaPemesan);
   std::cout << "Nomor telepon pemesan: ";
