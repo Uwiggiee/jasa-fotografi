@@ -1,9 +1,10 @@
-#include "../include/SistemPemesanan.h"
+#include "SistemPemesanan.h"
+#include "SortingAlgorithm.h"
 #include <iostream>
-#include <fstream> // Untuk baca/tulis file
+#include <fstream> 
 #include <iomanip>
 #include <sstream>
-#include <algorithm> // Untuk std::max
+#include <algorithm> 
 
 SistemPemesanan::SistemPemesanan() : counterBooking(0)
 {
@@ -213,15 +214,20 @@ bool SistemPemesanan::prosesBookingBaru(const User *user, const std::string &str
     return true;
 }
 
-void SistemPemesanan::tampilkanSemuaBooking() const
-{
-    if (semuaDataBooking.empty())
-    {
-        std::cout << "Info: Belum ada booking sama sekali." << std::endl;
+void SistemPemesanan::tampilkanSemuaBooking() const {
+    if (semuaDataBooking.empty()) {
+        std::cout << "Belum ada booking." << std::endl;
         return;
     }
-    std::cout << "\n=== Daftar Semua Booking di Sistem ===" << std::endl;
-    for (const auto &booking : semuaDataBooking)
+
+    // Make a copy for sorting (don't modify original)
+    std::vector<Booking> sortedBookings = semuaDataBooking;
+    
+    // Sort by date/time using custom merge sort!
+    SortingAlgorithm::mergeSort(sortedBookings, 0, sortedBookings.size() - 1);
+
+    std::cout << "\n=== JADWAL BOOKING (Sorted by Date/Time) ===" << std::endl;
+    for (const auto &booking : sortedBookings)
     {
         booking.tampilkanDetailBooking();
         std::cout << "------------------------------------" << std::endl;
