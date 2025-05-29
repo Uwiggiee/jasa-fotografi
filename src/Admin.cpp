@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <limits>
+#include <algorithm> //untuk std::transform
+#include <cctype> // Untuk std::tolower
 
 Admin::Admin(const std::string &namaInput, const std::string &teleponInput, const std::string &passwordInput)
     : User(namaInput, teleponInput), passwordAdmin(passwordInput) {} // Panggil constructor User dulu
@@ -22,11 +24,6 @@ void Admin::makeBooking(SistemPemesanan &sp) const
 {
   std::cout << "\n=== ADMIN: Buat Booking Untuk User ===" << std::endl;
   std::string namaPemesan, teleponPemesan, tanggal, waktuMulai, waktuSelesai;
-
-  if (std::cin.peek() == '\n')
-  {
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-  }
 
   std::cout << "Nama pemesan: ";
   std::getline(std::cin, namaPemesan);
@@ -58,12 +55,11 @@ void Admin::cancelBooking(SistemPemesanan &sp) const
   std::cout << "\n=== ADMIN: Batalkan Booking ===" << std::endl;
   std::string kodeBooking;
 
-  if (std::cin.peek() == '\n')
-  {
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-  }
   std::cout << "Kode booking yang dibatalkan: ";
   std::getline(std::cin, kodeBooking);
+
+  std::transform(kodeBooking.begin(), kodeBooking.end(), kodeBooking.begin(), 
+                [](unsigned char c) { return std::toupper(c); });
 
   sp.prosesBatalBooking(kodeBooking);
   std::cout << "===============================" << std::endl;
