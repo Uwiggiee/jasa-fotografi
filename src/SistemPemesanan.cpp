@@ -237,6 +237,7 @@ bool SistemPemesanan::prosesBatalBooking(const std::string &kodeBookingInput)
         {
             if (booking.isAktif())
             {
+                undoStack.push(booking);
                 booking.setStatusAktif(false);
                 std::cout << "Sistem: Booking " << kodeBookingInput << " dibatalkan." << std::endl;
                 ditemukanDanDiubah = true;
@@ -245,7 +246,7 @@ bool SistemPemesanan::prosesBatalBooking(const std::string &kodeBookingInput)
             else
             {
                 std::cout << "Info Sistem: Booking " << kodeBookingInput << " sudah batal." << std::endl;
-                return false; // Tidak ada perubahan, tidak perlu simpan
+                return false; 
             }
         }
     }
@@ -260,4 +261,33 @@ bool SistemPemesanan::prosesBatalBooking(const std::string &kodeBookingInput)
         std::cout << "Error Sistem: Kode booking " << kodeBookingInput << " tidak ketemu." << std::endl;
         return false;
     }
+}
+
+bool SistemPemesanan::undoCancellation() {
+    if(undoStack.isEmpty()) {
+        std::cout << "Tidak ada pembatalan yang bisa di-undo." << std::endl;
+        return false;
+    }
+
+    // Ambil booking terakhir yang dibatalkan (di paling atas stack)
+    Booking restoredBooking = undoStack.top();
+    undoStack.pop();
+
+    // Cari booking di vector dan restore
+    for (auto &booking : semuaDataBooking) {
+        if(booking.getKodeBooking() == restoredBooking.getKodeBooking()) {
+            booking.setStatusAktif(true);                  // Restoring
+            std::cout << "Undo berhasil! Booking " << restoredBooking.getKodeBooking()
+                      << " dikembalikan." << std::endl;
+            simpanBookingKeFile();
+            return true;
+        }
+    }
+    
+    std::cout << "Error: Booking tidak ditemukan untuk di-restore." << std::endl;
+    return false;
+}
+
+bool SistemPemesanan::canUndo() const {
+    return !undoStack.isEmpty();
 }
