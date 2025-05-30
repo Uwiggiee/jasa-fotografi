@@ -32,7 +32,7 @@ void SortingAlgorithm::merge(std::vector<Booking>& bookings, int left, int mid, 
     while (i < leftSize && j < rightSize)
     {
         if(compareBookings(leftArray[i], rightArray[j])) {
-            bookings[k] = leftArray[j];
+            bookings[k] = leftArray[i];
             i++;
         } else {
             bookings[k] = rightArray[j];

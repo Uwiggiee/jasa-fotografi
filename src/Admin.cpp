@@ -5,7 +5,7 @@
 #include <string>
 #include <limits>
 #include <algorithm> //untuk std::transform
-#include <cctype> // Untuk std::tolower
+#include <cctype>    // Untuk std::tolower
 
 Admin::Admin(const std::string &namaInput, const std::string &teleponInput, const std::string &passwordInput)
     : User(namaInput, teleponInput), passwordAdmin(passwordInput) {} // Panggil constructor User dulu
@@ -58,8 +58,9 @@ void Admin::cancelBooking(SistemPemesanan &sp) const
   std::cout << "Kode booking yang dibatalkan: ";
   std::getline(std::cin, kodeBooking);
 
-  std::transform(kodeBooking.begin(), kodeBooking.end(), kodeBooking.begin(), 
-                [](unsigned char c) { return std::toupper(c); });
+  std::transform(kodeBooking.begin(), kodeBooking.end(), kodeBooking.begin(),
+                 [](unsigned char c)
+                 { return std::toupper(c); });
 
   sp.prosesBatalBooking(kodeBooking);
   std::cout << "===============================" << std::endl;
@@ -72,10 +73,96 @@ void Admin::viewSchedule(SistemPemesanan &sp) const
   std::cout << "=================================" << std::endl;
 }
 
-void Admin::editBooking([[maybe_unused]] SistemPemesanan &sp)
+void Admin::editBooking(SistemPemesanan &sp)
 {
   std::cout << "\n=== ADMIN: Edit Booking ===" << std::endl;
-  std::cout << "Fitur ini belum tersedia." << std::endl;
+
+  // Tampilkan semua booking dulu
+  std::cout << "Daftar booking yang ada:" << std::endl;
+  sp.tampilkanSemuaBooking();
+
+  std::string kodeBooking;
+  std::cout << "\nMasukkan kode booking yang ingin diedit: ";
+  std::getline(std::cin, kodeBooking);
+
+  // Convert ke uppercase untuk konsistensi
+  std::transform(kodeBooking.begin(), kodeBooking.end(), kodeBooking.begin(),
+                 [](unsigned char c)
+                 { return std::toupper(c); });
+
+  // Cari booking berdasarkan kode
+  if (!sp.cariBookingByKode(kodeBooking))
+  {
+    std::cout << "Error: Kode booking '" << kodeBooking << "' tidak ditemukan!" << std::endl;
+    std::cout << "===========================" << std::endl;
+    return;
+  }
+
+  // Menu edit options
+  std::cout << "\nPilih yang ingin diedit:" << std::endl;
+  std::cout << "1. Nama pemesan" << std::endl;
+  std::cout << "2. Nomor telepon pemesan" << std::endl;
+  std::cout << "3. Tanggal & waktu booking" << std::endl;
+  std::cout << "4. Batalkan edit" << std::endl;
+  std::cout << "Pilih: ";
+
+  int pilihan;
+  std::cin >> pilihan;
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+  switch (pilihan)
+  {
+  case 1:
+  {
+    std::string namaBaru;
+    std::cout << "Nama pemesan baru: ";
+    std::getline(std::cin, namaBaru);
+    if (!namaBaru.empty())
+    {
+      sp.editNamaPemesan(kodeBooking, namaBaru);
+    }
+    else
+    {
+      std::cout << "Nama tidak boleh kosong!" << std::endl;
+    }
+    break;
+  }
+  case 2:
+  {
+    std::string teleponBaru;
+    std::cout << "Nomor telepon baru: ";
+    std::getline(std::cin, teleponBaru);
+    if (!teleponBaru.empty())
+    {
+      sp.editTeleponPemesan(kodeBooking, teleponBaru);
+    }
+    else
+    {
+      std::cout << "Nomor telepon tidak boleh kosong!" << std::endl;
+    }
+    break;
+  }
+  case 3:
+  {
+    std::string tanggalBaru, waktuMulaiBaru, waktuSelesaiBaru;
+    std::cout << "Tanggal baru (dd/mm/yyyy): ";
+    std::getline(std::cin, tanggalBaru);
+    std::cout << "Waktu mulai baru (hh:mm): ";
+    std::getline(std::cin, waktuMulaiBaru);
+    std::cout << "Waktu selesai baru (hh:mm): ";
+    std::getline(std::cin, waktuSelesaiBaru);
+
+    sp.editWaktuBooking(kodeBooking, tanggalBaru, waktuMulaiBaru, waktuSelesaiBaru);
+    break;
+  }
+  case 4:
+    std::cout << "Edit dibatalkan." << std::endl;
+    break;
+  default:
+    std::cout << "Pilihan tidak valid!" << std::endl;
+    break;
+  }
+
   std::cout << "===========================" << std::endl;
 }
 

@@ -25,7 +25,7 @@ public:
   void makeBooking(SistemPemesanan &sp) const override;
   void cancelBooking(SistemPemesanan &sp) const override;
   void viewSchedule(SistemPemesanan &sp) const;
-  void editBooking(SistemPemesanan &sp); // Fitur belum jadi
+  void editBooking(SistemPemesanan &sp);
   void viewUsers(Auth &sistemAuth) const;
 };
 

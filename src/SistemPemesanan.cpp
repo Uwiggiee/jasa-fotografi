@@ -1,10 +1,10 @@
 #include "SistemPemesanan.h"
 #include "SortingAlgorithm.h"
 #include <iostream>
-#include <fstream> 
+#include <fstream>
 #include <iomanip>
 #include <sstream>
-#include <algorithm> 
+#include <algorithm>
 
 SistemPemesanan::SistemPemesanan() : counterBooking(0)
 {
@@ -98,7 +98,7 @@ bool SistemPemesanan::simpanBookingKeFile() const
     fileOut << "// Data Booking (kode,teleponPemesan,namaPemesan,tgl_dd/mm/yyyy,mulai_hh:mm,selesai_hh:mm,statusAktif_1atau0)" << std::endl;
     for (const auto &booking : semuaDataBooking)
     {
-        time_t waktuMulai_t = booking.getWaktuMulai(); 
+        time_t waktuMulai_t = booking.getWaktuMulai();
         time_t waktuSelesai_t = booking.getWaktuSelesai();
 
         struct tm *tm_mulai = nullptr;
@@ -214,15 +214,17 @@ bool SistemPemesanan::prosesBookingBaru(const User *user, const std::string &str
     return true;
 }
 
-void SistemPemesanan::tampilkanSemuaBooking() const {
-    if (semuaDataBooking.empty()) {
+void SistemPemesanan::tampilkanSemuaBooking() const
+{
+    if (semuaDataBooking.empty())
+    {
         std::cout << "Belum ada booking." << std::endl;
         return;
     }
 
     // Make a copy for sorting (don't modify original)
     std::vector<Booking> sortedBookings = semuaDataBooking;
-    
+
     // Sort by date/time using custom merge sort!
     SortingAlgorithm::mergeSort(sortedBookings, 0, sortedBookings.size() - 1);
 
@@ -252,14 +254,14 @@ bool SistemPemesanan::prosesBatalBooking(const std::string &kodeBookingInput)
             else
             {
                 std::cout << "Info Sistem: Booking " << kodeBookingInput << " sudah batal." << std::endl;
-                return false; 
+                return false;
             }
         }
     }
 
     if (ditemukanDanDiubah)
     {
-        simpanBookingKeFile(); 
+        simpanBookingKeFile();
         return true;
     }
     else
@@ -269,8 +271,10 @@ bool SistemPemesanan::prosesBatalBooking(const std::string &kodeBookingInput)
     }
 }
 
-bool SistemPemesanan::undoCancellation() {
-    if(undoStack.isEmpty()) {
+bool SistemPemesanan::undoCancellation()
+{
+    if (undoStack.isEmpty())
+    {
         std::cout << "Tidak ada pembatalan yang bisa di-undo." << std::endl;
         return false;
     }
@@ -280,20 +284,133 @@ bool SistemPemesanan::undoCancellation() {
     undoStack.pop();
 
     // Cari booking di vector dan restore
-    for (auto &booking : semuaDataBooking) {
-        if(booking.getKodeBooking() == restoredBooking.getKodeBooking()) {
-            booking.setStatusAktif(true);                  // Restoring
+    for (auto &booking : semuaDataBooking)
+    {
+        if (booking.getKodeBooking() == restoredBooking.getKodeBooking())
+        {
+            booking.setStatusAktif(true); // Restoring
             std::cout << "Undo berhasil! Booking " << restoredBooking.getKodeBooking()
                       << " dikembalikan." << std::endl;
             simpanBookingKeFile();
             return true;
         }
     }
-    
+
     std::cout << "Error: Booking tidak ditemukan untuk di-restore." << std::endl;
     return false;
 }
 
-bool SistemPemesanan::canUndo() const {
+bool SistemPemesanan::canUndo() const
+{
     return !undoStack.isEmpty();
+}
+
+bool SistemPemesanan::cariBookingByKode(const std::string &kodeBooking) const
+{
+    for (const auto &booking : semuaDataBooking)
+    {
+        if (booking.getKodeBooking() == kodeBooking && booking.isAktif())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool SistemPemesanan::editNamaPemesan(const std::string &kodeBooking, const std::string &namaBaru)
+{
+    for (auto &booking : semuaDataBooking)
+    {
+        if (booking.getKodeBooking() == kodeBooking && booking.isAktif())
+        {
+            booking.setPemesanNama(namaBaru);
+            std::cout << "Nama pemesan berhasil diubah menjadi: " << namaBaru << std::endl;
+            simpanBookingKeFile();
+            return true;
+        }
+    }
+    std::cout << "Error: Booking tidak ditemukan atau sudah dibatalkan!" << std::endl;
+    return false;
+}
+
+bool SistemPemesanan::editTeleponPemesan(const std::string &kodeBooking, const std::string &teleponBaru)
+{
+    for (auto &booking : semuaDataBooking)
+    {
+        if (booking.getKodeBooking() == kodeBooking && booking.isAktif())
+        {
+            booking.setPemesanNomorTelepon(teleponBaru);
+            std::cout << "Nomor telepon pemesan berhasil diubah menjadi: " << teleponBaru << std::endl;
+            simpanBookingKeFile();
+            return true;
+        }
+    }
+    std::cout << "Error: Booking tidak ditemukan atau sudah dibatalkan!" << std::endl;
+    return false;
+}
+
+bool SistemPemesanan::editWaktuBooking(const std::string &kodeBooking, const std::string &tanggalBaru,
+                                       const std::string &waktuMulaiBaru, const std::string &waktuSelesaiBaru)
+{
+    for (auto &booking : semuaDataBooking)
+    {
+        if (booking.getKodeBooking() == kodeBooking && booking.isAktif())
+        {
+            // Backup booking lama untuk rollback jika ada error
+            Booking backupBooking = booking;
+
+            // Update waktu booking
+            time_t tanggalKonversi = ubahStringTanggalKeTimeT(tanggalBaru);
+            time_t waktuMulaiBaru_t = ubahStringJamKeTimeT(tanggalKonversi, waktuMulaiBaru);
+            time_t waktuSelesaiBaru_t = ubahStringJamKeTimeT(tanggalKonversi, waktuSelesaiBaru);
+
+            // Validasi format waktu
+            if (waktuMulaiBaru_t == static_cast<time_t>(-1) || waktuSelesaiBaru_t == static_cast<time_t>(-1))
+            {
+                std::cout << "Error: Format tanggal/waktu tidak valid!" << std::endl;
+                return false;
+            }
+
+            // Validasi waktu selesai > waktu mulai
+            if (waktuSelesaiBaru_t <= waktuMulaiBaru_t)
+            {
+                std::cout << "Error: Waktu selesai harus setelah waktu mulai!" << std::endl;
+                return false;
+            }
+
+            // Set waktu baru sementara untuk cek konflik
+            booking.setWaktuMulai(waktuMulaiBaru_t);
+            booking.setWaktuSelesai(waktuSelesaiBaru_t);
+
+            // Cek konflik dengan booking lain (exclude booking yang sedang diedit)
+            bool bentrok = false;
+            for (const auto &bookingLain : semuaDataBooking)
+            {
+                if (bookingLain.isAktif() && bookingLain.getKodeBooking() != kodeBooking)
+                {
+                    if (booking.getWaktuMulai() < bookingLain.getWaktuSelesai() &&
+                        booking.getWaktuSelesai() > bookingLain.getWaktuMulai())
+                    {
+                        bentrok = true;
+                        break;
+                    }
+                }
+            }
+
+            if (bentrok)
+            {
+                // Rollback ke waktu lama
+                booking = backupBooking;
+                std::cout << "Error: Jadwal baru bentrok dengan booking lain!" << std::endl;
+                return false;
+            }
+
+            // Sukses - simpan perubahan
+            std::cout << "Waktu booking berhasil diubah!" << std::endl;
+            simpanBookingKeFile();
+            return true;
+        }
+    }
+    std::cout << "Error: Booking tidak ditemukan atau sudah dibatalkan!" << std::endl;
+    return false;
 }
