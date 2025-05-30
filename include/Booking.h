@@ -21,7 +21,7 @@ private:
 
 public:
     // Tambah default constructor
-    Booking() : pemesanNama(""), pemesanNomorTelepon(""), 
+    Booking() : pemesanNama(""), pemesanNomorTelepon(""),
                 waktuMulai(0), waktuSelesai(0), kodeBooking(""), statusAktif(false) {}
 
     // Constructor diubah untuk terima nama dan telepon pemesan
@@ -43,6 +43,12 @@ public:
 
     void setKodeBooking(const std::string &kode) { kodeBooking = kode; }
     void setStatusAktif(bool status) { statusAktif = status; }
+
+    // New setter methods for editing
+    void setPemesanNama(const std::string &nama) { pemesanNama = nama; }
+    void setPemesanNomorTelepon(const std::string &telepon) { pemesanNomorTelepon = telepon; }
+    void setWaktuMulai(time_t waktu) { waktuMulai = waktu; }
+    void setWaktuSelesai(time_t waktu) { waktuSelesai = waktu; }
 };
 
 #endif

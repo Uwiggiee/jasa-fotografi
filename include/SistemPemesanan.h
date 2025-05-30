@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "Booking.h"
-#include "User.h" 
+#include "User.h"
 #include "CustomStack.h"
 
 class SistemPemesanan
@@ -18,8 +18,8 @@ private:
 
     std::string hasilkanKodeBooking();
     bool cekJadwalBentrok(const Booking &bookingBaru) const;
-    bool bacaBookingDariFile();       
-    bool simpanBookingKeFile() const; 
+    bool bacaBookingDariFile();
+    bool simpanBookingKeFile() const;
 
 public:
     SistemPemesanan();
@@ -30,6 +30,13 @@ public:
     bool prosesBatalBooking(const std::string &kodeBooking);
     bool undoCancellation();
     bool canUndo() const;
+
+    // New edit methods
+    bool cariBookingByKode(const std::string &kodeBooking) const;
+    bool editNamaPemesan(const std::string &kodeBooking, const std::string &namaBaru);
+    bool editTeleponPemesan(const std::string &kodeBooking, const std::string &teleponBaru);
+    bool editWaktuBooking(const std::string &kodeBooking, const std::string &tanggalBaru,
+                          const std::string &waktuMulaiBaru, const std::string &waktuSelesaiBaru);
 };
 
 #endif

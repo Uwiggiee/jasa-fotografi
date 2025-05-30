@@ -215,8 +215,9 @@ void menuAdminKhusus(Auth &auth, SistemPemesanan &sp)
     std::cout << " (Tidak tersedia)";
   }
   std::cout << std::endl;
-  std::cout << "5. Lihat User Pelanggan" << std::endl;
-  std::cout << "6. Logout" << std::endl;
+  std::cout << "5. Edit Booking" << std::endl; // New menu item
+  std::cout << "6. Lihat User Pelanggan" << std::endl;
+  std::cout << "7. Logout" << std::endl; // Updated number
   std::cout << "\nPilih: ";
 
   int pilihan;
@@ -249,11 +250,15 @@ void menuAdminKhusus(Auth &auth, SistemPemesanan &sp)
     std::cout << "=== ADMIN: Undo Pembatalan Booking ===" << std::endl;
     sp.undoCancellation();
     break;
-  case 5:
+  case 5: // New case for edit booking
+    bersihkanLayar();
+    adminAktif->editBooking(sp);
+    break;
+  case 6: // Updated case numbers
     bersihkanLayar();
     adminAktif->viewUsers(auth);
     break;
-  case 6:
+  case 7: // Updated case numbers
     auth.prosesLogout();
     break;
   default:
