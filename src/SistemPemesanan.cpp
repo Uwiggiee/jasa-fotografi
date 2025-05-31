@@ -180,8 +180,17 @@ bool SistemPemesanan::cekJadwalBentrok(const Booking &bookingBaru) const
     {
         if (bookingLama.isAktif())
         {
-            if (bookingBaru.getWaktuMulai() < bookingLama.getWaktuSelesai() &&
-                bookingBaru.getWaktuSelesai() > bookingLama.getWaktuMulai())
+            if 
+            (
+                !( 
+                    (bookingBaru.getWaktuMulai() < bookingBaru.getWaktuMulai()) &&  
+                    (bookingBaru.getWaktuSelesai() <= bookingLama.getWaktuMulai())
+                ) || 
+                (
+                    (bookingBaru.getWaktuMulai() >= bookingLama.getWaktuSelesai()) && 
+                    (bookingBaru.getWaktuSelesai() > bookingLama.getWaktuSelesai())
+                )
+            )
             {
                 return true;
             }
