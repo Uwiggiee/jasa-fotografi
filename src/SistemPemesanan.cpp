@@ -101,44 +101,60 @@ bool SistemPemesanan::simpanBookingKeFile() const
         time_t waktuMulai_t = booking.getWaktuMulai();
         time_t waktuSelesai_t = booking.getWaktuSelesai();
 
-        struct tm *tm_mulai = nullptr;
-        if (waktuMulai_t != static_cast<time_t>(-1))
-        { // Hanya panggil localtime jika waktunya valid
-            tm_mulai = localtime(&waktuMulai_t);
-        }
-
-        struct tm *tm_selesai = nullptr;
-        if (waktuSelesai_t != static_cast<time_t>(-1))
-        { // Hanya panggil localtime jika waktunya valid
-            tm_selesai = localtime(&waktuSelesai_t);
-        }
-
         std::string tanggal_str = "00/00/0000"; // Default jika ada masalah
         std::string mulai_str = "00:00";
         std::string selesai_str = "00:00";
 
-        if (tm_mulai) // Pastikan tm_mulai tidak null sebelum diakses
+        // ✅ FIX: Copy struct tm to avoid static buffer overwrite
+        struct tm tm_mulai_copy = {};
+        struct tm tm_selesai_copy = {};
+        bool mulai_valid = false;
+        bool selesai_valid = false;
+
+        if (waktuMulai_t != static_cast<time_t>(-1))
+        {
+            struct tm *temp_tm = localtime(&waktuMulai_t);
+            if (temp_tm)
+            {
+                tm_mulai_copy = *temp_tm; // ✅ COPY to avoid overwrite
+                mulai_valid = true;
+            }
+        }
+
+        if (waktuSelesai_t != static_cast<time_t>(-1))
+        {
+            struct tm *temp_tm = localtime(&waktuSelesai_t);
+            if (temp_tm)
+            {
+                tm_selesai_copy = *temp_tm; // ✅ COPY to avoid overwrite
+                selesai_valid = true;
+            }
+        }
+
+        // ✅ Now use the COPIED structs
+        if (mulai_valid)
         {
             std::ostringstream oss_tgl;
-            oss_tgl << std::setfill('0') << std::setw(2) << tm_mulai->tm_mday << "/"
-                    << std::setfill('0') << std::setw(2) << (tm_mulai->tm_mon + 1) << "/"
-                    << (tm_mulai->tm_year + 1900);
+            oss_tgl << std::setfill('0') << std::setw(2) << tm_mulai_copy.tm_mday << "/"
+                    << std::setfill('0') << std::setw(2) << (tm_mulai_copy.tm_mon + 1) << "/"
+                    << (tm_mulai_copy.tm_year + 1900);
             tanggal_str = oss_tgl.str();
 
             std::ostringstream oss_mulai;
-            oss_mulai << std::setfill('0') << std::setw(2) << tm_mulai->tm_hour << ":"
-                      << std::setfill('0') << std::setw(2) << tm_mulai->tm_min;
+            oss_mulai << std::setfill('0') << std::setw(2) << tm_mulai_copy.tm_hour << ":"
+                      << std::setfill('0') << std::setw(2) << tm_mulai_copy.tm_min;
             mulai_str = oss_mulai.str();
         }
 
-        if (tm_selesai) // Pastikan tm_selesai tidak null
+        if (selesai_valid)
         {
             std::ostringstream oss_selesai;
-            oss_selesai << std::setfill('0') << std::setw(2) << tm_selesai->tm_hour << ":"
-                        << std::setfill('0') << std::setw(2) << tm_selesai->tm_min;
+            oss_selesai << std::setfill('0') << std::setw(2) << tm_selesai_copy.tm_hour << ":"
+                        << std::setfill('0') << std::setw(2) << tm_selesai_copy.tm_min;
             selesai_str = oss_selesai.str();
         }
-        // Baru kita tulis ke file
+
+        // Tulis ke file
         fileOut << booking.getKodeBooking() << ","
                 << booking.getPemesanNomorTelepon() << ","
                 << booking.getPemesanNama() << ","
@@ -174,7 +190,9 @@ bool SistemPemesanan::cekJadwalBentrok(const Booking &bookingBaru) const
     return false;
 }
 
-bool SistemPemesanan::prosesBookingBaru(const User *user, const std::string &strTanggal, const std::string &strMulai, const std::string &strSelesai, std::string &outKodeBooking)
+bool SistemPemesanan::prosesBookingBaru(const User *user, const std::string &strTanggal,
+                                        const std::string &strMulai, const std::string &strSelesai,
+                                        std::string &outKodeBooking)
 {
     if (!user)
     {
@@ -183,7 +201,6 @@ bool SistemPemesanan::prosesBookingBaru(const User *user, const std::string &str
         return false;
     }
 
-    // Gunakan constructor Booking yang baru
     Booking bookingDibuat(user->getName(), user->getPhoneNumber(), strTanggal, strMulai, strSelesai);
 
     if (bookingDibuat.getWaktuMulai() == static_cast<time_t>(-1) || bookingDibuat.getWaktuSelesai() == static_cast<time_t>(-1))
