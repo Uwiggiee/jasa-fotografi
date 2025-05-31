@@ -59,20 +59,31 @@ Booking::Booking(const std::string &namaPemesanInput, const std::string &telepon
     time_t tanggalKonversi = ubahStringTanggalKeTimeT(strTanggal);
     waktuMulai = ubahStringJamKeTimeT(tanggalKonversi, strMulai);
     waktuSelesai = ubahStringJamKeTimeT(tanggalKonversi, strSelesai);
-    // Kode booking akan di-set oleh SistemPemesanan
 }
 
 // Constructor untuk loading dari file
 Booking::Booking(const std::string &kodeBookingInput, const std::string &namaPemesanInput, const std::string &teleponPemesanInput,
                  const std::string &strTanggal, const std::string &strMulai, const std::string &strSelesai, bool aktifStatus)
-    : pemesanNama(namaPemesanInput), 
+    : pemesanNama(namaPemesanInput),
       pemesanNomorTelepon(teleponPemesanInput),
       kodeBooking(kodeBookingInput),
       statusAktif(aktifStatus)
 {
     time_t tanggalKonversi = ubahStringTanggalKeTimeT(strTanggal);
-    waktuMulai = ubahStringJamKeTimeT(tanggalKonversi, strMulai);   
+    waktuMulai = ubahStringJamKeTimeT(tanggalKonversi, strMulai);
     waktuSelesai = ubahStringJamKeTimeT(tanggalKonversi, strSelesai);
+
+    // ✅ ADD VALIDATION FOR FILE LOADING TOO:
+    if (waktuMulai != static_cast<time_t>(-1) && waktuSelesai != static_cast<time_t>(-1))
+    {
+        if (waktuSelesai <= waktuMulai)
+        {
+            std::cerr << "Warning: Invalid booking data from file - " << kodeBookingInput
+                      << " (waktu selesai <= waktu mulai)" << std::endl;
+            waktuMulai = static_cast<time_t>(-1);
+            waktuSelesai = static_cast<time_t>(-1);
+        }
+    }
 }
 
 void Booking::tampilkanDetailBooking() const
@@ -85,12 +96,32 @@ void Booking::tampilkanDetailBooking() const
     }
     else
     {
-        struct tm *mulai_tm = localtime(&waktuMulai);
-        struct tm *selesai_tm = localtime(&waktuSelesai);
-        if (mulai_tm && selesai_tm)
+        // ✅ FIX: Copy struct tm to avoid static buffer overwrite
+        struct tm mulai_tm_copy = {};
+        struct tm selesai_tm_copy = {};
+        bool mulai_valid = false;
+        bool selesai_valid = false;
+
+        // Get and copy mulai time
+        struct tm *temp_tm = localtime(&waktuMulai);
+        if (temp_tm)
         {
-            std::cout << "Waktu  : " << std::put_time(mulai_tm, "%d %b %Y | %H:%M")
-                      << " - " << std::put_time(selesai_tm, "%H:%M") << std::endl;
+            mulai_tm_copy = *temp_tm; // ✅ COPY to avoid overwrite
+            mulai_valid = true;
+        }
+
+        // Get and copy selesai time
+        temp_tm = localtime(&waktuSelesai);
+        if (temp_tm)
+        {
+            selesai_tm_copy = *temp_tm; // ✅ COPY to avoid overwrite
+            selesai_valid = true;
+        }
+
+        if (mulai_valid && selesai_valid)
+        {
+            std::cout << "Waktu  : " << std::put_time(&mulai_tm_copy, "%d %b %Y | %H:%M")
+                      << " - " << std::put_time(&selesai_tm_copy, "%H:%M") << std::endl;
         }
         else
         {
