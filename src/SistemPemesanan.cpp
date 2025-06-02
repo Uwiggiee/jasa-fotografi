@@ -182,13 +182,15 @@ bool SistemPemesanan::cekJadwalBentrok(const Booking &bookingBaru) const
         {
             if 
             (
-                !( 
-                    (bookingBaru.getWaktuMulai() < bookingBaru.getWaktuMulai()) &&  
-                    (bookingBaru.getWaktuSelesai() <= bookingLama.getWaktuMulai())
-                ) || 
-                (
-                    (bookingBaru.getWaktuMulai() >= bookingLama.getWaktuSelesai()) && 
-                    (bookingBaru.getWaktuSelesai() > bookingLama.getWaktuSelesai())
+                !(
+                    ( 
+                        (bookingBaru.getWaktuMulai() < bookingBaru.getWaktuMulai()) &&  
+                        (bookingBaru.getWaktuSelesai() <= bookingLama.getWaktuMulai())
+                    ) || 
+                    (
+                        (bookingBaru.getWaktuMulai() >= bookingLama.getWaktuSelesai()) && 
+                        (bookingBaru.getWaktuSelesai() > bookingLama.getWaktuSelesai())
+                    )
                 )
             )
             {
@@ -214,19 +216,19 @@ bool SistemPemesanan::prosesBookingBaru(const User *user, const std::string &str
 
     if (bookingDibuat.getWaktuMulai() == static_cast<time_t>(-1) || bookingDibuat.getWaktuSelesai() == static_cast<time_t>(-1))
     {
-        std::cout << "Error Sistem: Format tanggal/waktu salah." << std::endl;
+        std::cout << "\nError Sistem: Format tanggal/waktu salah." << std::endl;
         outKodeBooking = "GAGAL_FORMAT_WAKTU";
         return false;
     }
     if (bookingDibuat.getWaktuSelesai() <= bookingDibuat.getWaktuMulai())
     {
-        std::cout << "Error Sistem: Waktu selesai harus setelah mulai." << std::endl;
+        std::cout << "\nError Sistem: Waktu selesai harus setelah mulai." << std::endl;
         outKodeBooking = "GAGAL_WAKTU_ANEH";
         return false;
     }
     if (cekJadwalBentrok(bookingDibuat))
     {
-        std::cout << "Error Sistem: Jadwal sudah terisi." << std::endl;
+        std::cout << "\nError Sistem: sudah ada jadwal yang bertabrakan dengan waktu tersebut, pilih waktu lain" << std::endl;
         outKodeBooking = "GAGAL_BENTROK";
         return false;
     }
