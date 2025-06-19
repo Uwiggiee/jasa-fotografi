@@ -184,7 +184,7 @@ bool SistemPemesanan::cekJadwalBentrok(const Booking &bookingBaru) const
             (
                 !(
                     ( 
-                        (bookingBaru.getWaktuMulai() < bookingBaru.getWaktuMulai()) &&  
+                        (bookingBaru.getWaktuMulai() < bookingLama.getWaktuMulai()) &&  
                         (bookingBaru.getWaktuSelesai() <= bookingLama.getWaktuMulai())
                     ) || 
                     (
